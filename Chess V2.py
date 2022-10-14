@@ -1,4 +1,4 @@
-from termcolor import colored
+from termcolor import colored       #>>> pip install termcolor
 from os import system
 
 class Pieces:
@@ -7,13 +7,13 @@ class Pieces:
 
         self.type = type
         self.x, self.y = pos        # (x, y)
-        self.colour = colour        # 1 → WHITE | (-1) → BLACK | 0 → NONE
+        self.colour = colour                                    # 1 → WHITE | (-1) → BLACK | 0 → NONE
         self.has_moved = False
         self.en_passant = False
         
 
     def move(self, pos: tuple) -> None:
-        "moves an object to a cordinate pos includes castling and queening"
+        "moves an object to a cordinate pos, includes castling and queening"
         x, y  = pos
 
         if self.type == "king":
@@ -201,6 +201,9 @@ def spawn(turn, moves = None, obj = None):
     system("cls")
     print("Turn:", "White" if turn else "Black")
 
+    for i in white_cut_pieces: print(piece_symbols[i.type][i.colour], end="")
+    print()
+
     for i in range(8):
         print(8-i, end=" ")
         for j in range(8):
@@ -219,9 +222,12 @@ def spawn(turn, moves = None, obj = None):
             print(colored(fg, on_color=bg, attrs=["bold"]), end="")
         print()
     print("  A B C D E F G H")
+    for i in black_cut_pieces: print(piece_symbols[i.type][i.colour], end="")
 
 
 board = [[Pieces(None, 0, (j, i)) for i in range(8)] for j in range(8)]
+white_cut_pieces = []
+black_cut_pieces = []
 
 CHESS_PIECES = [
     "rook", "knight", "bishop", "queen",
@@ -239,7 +245,7 @@ board[0][4] = King_black = Pieces("king", -1, (0, 4))
 turn = True                                                 # TRUE → WHITE, FALSE → BLACK
 
 if input("""
-           ♔ CHESS ♚
+         ♔  CHESS ♚
 
 A Two player game, Checkmate the
      opponent's king to win!
@@ -266,7 +272,7 @@ while True:
             print("MATE!", ("White" if attacker.colour == 1 else "Black"), "wins!")
             break
 
-    a1, b1 = input("CORD: ").lower()
+    a1, b1 = input("\nCORD: ").lower()
     a1, b1 = ord(a1) - 97, 8 - int(b1)
     obj = board[b1][a1]
 
@@ -284,6 +290,12 @@ while True:
             a2, b2 = ord(a2) - 97, 8 - int(b2)
 
             if (b2, a2) in moves:
+                if board[b2][a2].colour == -obj.colour:
+                    if board[b2][a2].colour == 1:
+                        white_cut_pieces.append(board[b2][a2])
+                    else:
+                        black_cut_pieces.append(board[b2][a2])
+
                 obj.move((b2, a2))
                 turn = not turn
                 break
